@@ -21,7 +21,8 @@ class HubsController < ApplicationController
     :request_rights,
     :retrievals,
     :search,
-    :show
+    :show,
+    :remove_delimiter
   ]
 
   after_action :verify_authorized, except: [:index, :home, :meta]
@@ -60,7 +61,8 @@ class HubsController < ApplicationController
     :approve_tag,
     :unapprove_tag,
     :deprecate_tag,
-    :undeprecate_tag
+    :undeprecate_tag,
+    :remove_delimiter
   ]
 
   protect_from_forgery except: :items
@@ -242,6 +244,11 @@ class HubsController < ApplicationController
 
   def set_settings
     inputs = { hub: @hub }.reverse_merge(params)
+
+    if @hub.tags_delimiter.include?(params[:tags_delimiter])
+      flash[:notice] = "You have already added this delimiter"
+      return redirect_to settings_hub_path(@hub)
+    end
 
     outcome = Hubs::UpdateTaggingSettings.run(inputs)
 
@@ -805,6 +812,21 @@ class HubsController < ApplicationController
       flash[:notice] = 'Successfully undeprecated.'
       redirect_to hub_tags_path(@hub)
     end
+  end
+
+  def remove_delimiter
+    authorize @hub
+
+    redirect_to settings_hub_path(@hub) and return unless @hub.tags_delimiter.include?(params[:delimiter])
+    
+    @hub.tags_delimiter.delete(params[:delimiter])
+    if @hub.save
+      flash[:notice] = "Delimiter removed successfully"
+    else
+      flash[:error] = "Something went wrong, try again."
+    end
+
+    redirect_to settings_hub_path(@hub)
   end
 
   private

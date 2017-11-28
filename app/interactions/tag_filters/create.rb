@@ -19,6 +19,10 @@ module TagFilters
 
       tag = ActsAsTaggableOn::Tag.find(tag_id) if tag_id.present?
 
+      hub.tags_delimiter.each do |delimiter|
+        @new_tag_name.slice!(delimiter)
+      end
+
       if filter_type_class == ModifyTagFilter
         tag ||= find_or_create_tag_by_name(modify_tag_name)
         new_tag = find_or_create_tag_by_name(new_tag_name)

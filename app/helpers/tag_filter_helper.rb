@@ -25,16 +25,17 @@ module TagFilterHelper
   def self.split_tags(tags, hub)
     all_tags = []
     whitespace_tags = []
-    delimiter = hub.tags_delimiter_with_default
 
+    delimiters = hub.tags_delimiter_with_default
+    
     # split by whitespace first
     whitespace_tags = tags.gsub(/\s+/m, ' ').gsub(/^\s+|\s+$/m, '').split(' ')
 
-    # then split by the delimiter
+    # then split by the each delimiters
     all_tags << whitespace_tags.map do |tag|
-      tag.split(delimiter)
+      delimiters.map{ |delimiter| tag.split(delimiter) }
     end
 
-    all_tags.flatten
+    all_tags.flatten.uniq
   end
 end
