@@ -63,6 +63,14 @@ class HubsController < ApplicationController
     :undeprecate_tag
   ]
 
+  before_action :find_tag, only: [
+    :undeprecate_tag,
+    :approve_tag,
+    :deprecate_tag,
+    :undeprecate_tag,
+    :tag_controls
+  ]
+
   protect_from_forgery except: :items
 
   SORT_OPTIONS = {
@@ -417,9 +425,6 @@ class HubsController < ApplicationController
 
   def tag_controls
     add_breadcrumbs
-
-    @tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
-
     @already_filtered_for_hub = @hub.tag_filtered?(@tag)
 
     if params[:hub_feed_id].to_i != 0
@@ -688,10 +693,8 @@ class HubsController < ApplicationController
   end
 
   def approve_tag
-    tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
-
     approved = HubApprovedTag.new(
-      tag: tag,
+      tag: @tag,
       hub_id: @hub.id
     )
 
@@ -715,10 +718,8 @@ class HubsController < ApplicationController
   end
 
   def unapprove_tag
-    tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
-
     to_unapproved = HubApprovedTag.where(
-      tag: tag.name,
+      tag: @tag.name,
       hub_id: @hub.id
     ).first
 
@@ -740,18 +741,10 @@ class HubsController < ApplicationController
   end
 
   def deprecate_tag
-    tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
-
-    add_filter = TagFilter.where(
-      tag_id: tag.id,
-      type: 'AddTagFilter',
-      hub_id: @hub.id,
-      scope_type: 'Hub',
-      scope_id: @hub.id
-    ).first
+    add_filter = TagFilter.where(tag_filter_params('AddTagFilter')).first
 
     deprecation_filter = TagFilters::Create.run(
-      tag_id: tag.id,
+      tag_id: @tag.id,
       filter_type: 'DeleteTagFilter',
       hub: @hub,
       scope: @hub,
@@ -777,24 +770,8 @@ class HubsController < ApplicationController
   end
 
   def undeprecate_tag
-    tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
-    removed_params = {
-      tag_id: tag.id,
-      type: 'DeleteTagFilter',
-      hub_id: @hub.id,
-      scope_type: 'Hub',
-      scope_id: @hub.id
-    }
-    replaced_params = {
-      tag_id: tag.id,
-      type: 'ModifyTagFilter',
-      hub_id: @hub.id,
-      scope_type: 'Hub',
-      scope_id: @hub.id
-    }
-
-    removed_filters = TagFilter.where(removed_params)
-    replaced_filters = TagFilter.where(replaced_params)
+    removed_filters = TagFilter.where(tag_filter_params('DeleteTagFilter'))
+    replaced_filters = TagFilter.where(tag_filter_params('ModifyTagFilter'))
 
     removed_filters.map { |filter| filter.rollback_and_destroy_async(current_user) }
     replaced_filters.map { |filter| filter.rollback_and_destroy_async(current_user) }
@@ -820,5 +797,19 @@ class HubsController < ApplicationController
   def find_hub
     @hub = Hub.find(params[:id])
     authorize @hub
+  end
+
+  def find_tag
+    @tag = ActsAsTaggableOn::Tag.find(params[:tag_id])
+  end
+
+  def tag_filter_params(filter)
+    {
+      tag_id: @tag.id,
+      type: filter,
+      hub_id: @hub.id,
+      scope_type: 'Hub',
+      scope_id: @hub.id
+    }
   end
 end
