@@ -243,7 +243,8 @@ class Hub < ApplicationRecord
       tags_delimiter: tags_delimiter_with_default,
       official_tag_prefix: official_tag_prefix_with_default,
       hub_approved_tags: hub_approved_tags,
-      suggest_only_approved_tags: suggest_only_approved_tags_with_default
+      suggest_only_approved_tags: suggest_only_approved_tags_with_default,
+      enable_tag_scoreboard: enable_tag_scoreboard
     }
   end
 

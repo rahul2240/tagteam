@@ -1,7 +1,7 @@
 .hub-item-view.row
   .col-md-offset-1.col-md-7.pagination-wrapper
     = render partial: 'shared/paginate', object: hubs, as: :results
-  .alter-views.col-md-4
+  .alter-views.col-md-4z
     Sort by:
     \#{sortable_link('title', sort, order, path)}
     \#{sortable_link('date', sort, order, path)}

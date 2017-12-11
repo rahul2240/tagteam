@@ -31,5 +31,10 @@
           = check_box_tag('suggest_only_approved_tags', settings[:suggest_only_approved_tags], settings[:suggest_only_approved_tags], id: 'suggest_only_approved_tags')
           Suggest only approved tags in the bookmarklet form
 
+      .form-group.checkbox
+        = label_tag 'Enable tag scoreboard' do
+          = check_box_tag('enable_tag_scoreboard', settings[:enable_tag_scoreboard], settings[:enable_tag_scoreboard], id: 'enable_tag_scoreboard')
+          Enable tag scoreboard
+
       .form-group
         = submit_tag 'Save', class: 'btn btn-primary', id: 'save_settings'

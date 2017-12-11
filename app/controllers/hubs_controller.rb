@@ -60,7 +60,8 @@ class HubsController < ApplicationController
     :approve_tag,
     :unapprove_tag,
     :deprecate_tag,
-    :undeprecate_tag
+    :undeprecate_tag,
+    :scoreboard
   ]
 
   protect_from_forgery except: :items
@@ -70,6 +71,11 @@ class HubsController < ApplicationController
     'date' => ->(rel) { rel.order('created_at') },
     'owner' => ->(rel) { rel.by_first_owner }
   }.freeze
+
+  # TAGGER_SORT_OPTIONS = {
+  #   'name' => ->(rel) { rel.sort_by { |e| e.first_name, e.last_name } }
+  # }
+
   SORT_DIR_OPTIONS = %w(asc desc).freeze
 
   def about
@@ -170,6 +176,12 @@ class HubsController < ApplicationController
     add_breadcrumbs
 
     @settings = @hub.settings
+
+    render layout: request.xhr? ? false : 'tabs'
+  end
+
+  def scoreboard
+    @users = @hub.users_with_roles.paginate(page: params[:page], per_page: get_per_page)
 
     render layout: request.xhr? ? false : 'tabs'
   end
