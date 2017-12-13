@@ -68,8 +68,11 @@ class HubsController < ApplicationController
   SORT_OPTIONS = {
     'title' => ->(rel) { rel.order('title') },
     'date' => ->(rel) { rel.order('created_at') },
-    'owner' => ->(rel) { rel.by_first_owner }
+    'owner' => ->(rel) { rel.by_first_owner },
+    'created_date' => -> { rel.order('created_at') },
+    'updated_date' => -> { rel.order('updated_date') }
   }.freeze
+  
   SORT_DIR_OPTIONS = %w(asc desc).freeze
 
   def about
@@ -804,6 +807,23 @@ class HubsController < ApplicationController
     else
       flash[:notice] = 'Successfully undeprecated.'
       redirect_to hub_tags_path(@hub)
+    end
+  end
+
+  def hub_admin
+    authorize Hub
+
+    @hubs = policy_scope(Hub).paginate(page: params[:page], per_page: 5)
+  end
+
+  def destroy_hubs
+    authorize Hub
+
+    @hubs = Hub.where(id: params[:hub_ids])
+
+    if @hubs.destroy_all
+      flash[:notice] = 'You have successfully destroyed the hub'
+      render :js => "window.location.href = '#{hub_admin_hubs_path}'"
     end
   end
 

@@ -175,6 +175,14 @@ class HubPolicy < ApplicationPolicy
     owner_or_admin?
   end
 
+  def hub_admin?
+    owner_or_admin? 
+  end
+
+  def destroy_hubs?
+    owner_or_admin? 
+  end
+
   private
 
   def owner_or_admin?
