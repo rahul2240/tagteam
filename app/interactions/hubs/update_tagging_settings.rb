@@ -8,7 +8,7 @@ module Hubs
     string :official_tag_prefix
     string :suggest_only_approved_tags, default: nil
     string :hub_approved_tags
-    boolean :enable_tag_scoreboard
+    boolean :enable_tag_scoreboard, default: false
 
     def execute
       assign_attributes
