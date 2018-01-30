@@ -6,8 +6,8 @@ class TagFilter < ApplicationRecord
 
   belongs_to :hub
   belongs_to :scope, polymorphic: true
-  belongs_to :tag, class_name: 'ActsAsTaggableOn::Tag'
-  belongs_to :new_tag, class_name: 'ActsAsTaggableOn::Tag'
+  belongs_to :tag, class_name: 'ActsAsTaggableOn::Tag', dependent: :destroy
+  belongs_to :new_tag, class_name: 'ActsAsTaggableOn::Tag', dependent: :destroy
   has_many :taggings, as: :tagger, class_name: 'ActsAsTaggableOn::Tagging'
   has_many :deactivated_taggings, as: :tagger
 
