@@ -31,7 +31,10 @@ class ModifyTagFilter < TagFilter
     FeedItem.where(id: fetched_item_ids).find_each do |item|
       new_tagging = item.taggings.build(tag: new_tag, tagger: self,
                                         context: hub.tagging_key)
-      new_tagging.save! if new_tagging.valid?
+      if new_tagging.valid?
+        new_tagging.save!
+        item.solr_index
+      end
     end
     update_column(:applied, true)
   end
