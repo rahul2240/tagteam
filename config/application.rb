@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails/all'
@@ -35,8 +36,8 @@ module Tagteam
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    config.autoload_paths += %W(#{config.root}/lib)
-    config.autoload_paths += Dir.glob("#{config.root}/app/interactions/*")
+    config.eager_load_paths += %W[#{config.root}/lib]
+    config.autoload_paths += Dir.glob(Rails.root.join('app', 'interactions', '*'))
 
     # Activate observers that should always be running.
     config.active_record.observers = :feed_item_observer, :hub_feed_observer, :tag_filter_observer
@@ -49,7 +50,7 @@ module Tagteam
     config.filter_parameters += [:password, :password_confirmation, 'SHARED_KEY_FOR_TASKS']
 
     config.log_tags = [:uuid, :remote_ip, ->(_req) { Time.current.httpdate }]
-    
+
     config.active_job.queue_adapter = :sidekiq
   end
 end
